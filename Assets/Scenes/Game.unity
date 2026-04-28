@@ -620,6 +620,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   lineDistance: 4
   speed: 20
+  coinSound: {fileID: 8300000, guid: fe65222f4f668c74db082272c5cd1436, type: 3}
+  currentSpeed: 0
   jumpForce: 11
   gravity: -20
   losePanel: {fileID: 93814577}
@@ -889,6 +891,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   lineDistance: 4
   speed: 20
+  coinSound: {fileID: 0}
+  currentSpeed: 0
   jumpForce: 11
   gravity: -20
   losePanel: {fileID: 93814577}
@@ -2023,10 +2027,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 778556238}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -370, y: 1000}
-  m_SizeDelta: {x: -880, y: -2140}
+  m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1667473265
 MonoBehaviour:
@@ -2342,7 +2346,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 0
+  m_Text: 2
 --- !u!222 &1714661261
 CanvasRenderer:
   m_ObjectHideFlags: 0

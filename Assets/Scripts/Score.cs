@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,31 +7,31 @@ public class Score : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] public Text scoreText;
     private int totalScore;
-
     public int scoreMultiplier;
-    
+
     [Header("Speed Settings")]
-    [SerializeField] private PlayerController playerController; // Ссылка на игрока
-    public float baseScoreRate = 0.1f; // Базовый множитель
-    
+    [SerializeField] private PlayerController playerController;
+    public float baseScoreRate = 0.1f;
+
+    private int permanentExtraCoins = 0;
+    private float temporaryCoinMultiplier = 1f;
+    private Coroutine coinMultiplierCoroutine;
+
     private float scoreBuffer = 0f;
     private float currentRate;
 
     private void Start()
     {
-        // Автоматически находим игрока, если не назначен
         if (playerController == null)
             playerController = FindFirstObjectByType<PlayerController>();
     }
 
     private void Update()
     {
-        // Считаем текущий темп набора очков
         if (playerController != null)
         {
             float speed = playerController.GetCurrentSpeed();
-            // Чем выше скорость, тем быстрее счет
-            float speedFactor = speed / 20f; // 20 - базовая скорость
+            float speedFactor = speed / 20f;
             currentRate = baseScoreRate * speedFactor * scoreMultiplier;
         }
         else
@@ -41,11 +40,10 @@ public class Score : MonoBehaviour
         }
     }
 
+
     private void FixedUpdate()
     {
-        // Добавляем очки с учетом текущего темпа
         scoreBuffer += currentRate;
-        
         if (scoreBuffer >= 1f)
         {
             int pointsToAdd = Mathf.FloorToInt(scoreBuffer);
@@ -54,9 +52,34 @@ public class Score : MonoBehaviour
             scoreText.text = totalScore.ToString();
         }
     }
-    
-    public float GetCurrentScoreRate()
+
+    public float GetCurrentScoreRate() => currentRate;
+
+    public void AddPermanentCoinBonus(int extra)   // теперь int, а не float
     {
-        return currentRate;
+        permanentExtraCoins += extra;
+    }
+
+    public void AddTemporaryCoinMultiplier(float multiplier, float duration)
+    {
+        if (coinMultiplierCoroutine != null)
+            StopCoroutine(coinMultiplierCoroutine);
+        temporaryCoinMultiplier = multiplier;
+        coinMultiplierCoroutine = StartCoroutine(RevertCoinMultiplierAfterTime(duration));
+    }
+
+    private IEnumerator RevertCoinMultiplierAfterTime(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        temporaryCoinMultiplier = 1f;
+        coinMultiplierCoroutine = null;
+    }
+
+    // НОВЫЙ МЕТОД – нужен для PlayerController
+    public int GetBaseCoinValue() => 1 + permanentExtraCoins;
+    public float GetTemporaryCoinMultiplier() => temporaryCoinMultiplier;
+    public float GetCoinMultiplier()
+    {
+        return permanentExtraCoins * temporaryCoinMultiplier;
     }
 }

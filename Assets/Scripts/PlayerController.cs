@@ -12,6 +12,10 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private Score score;
     [SerializeField] private float speed;
+    private float permanentSpeedMultiplier = 1f;
+    private float temporarySpeedMultiplier = 1f;
+    [SerializeField] private AudioClip coinSound; // перетащите звук в инспекторе
+    [SerializeField] private float currentSpeed; 
     [SerializeField] private float jumpForce;
     [SerializeField] private float gravity;
     [SerializeField] private GameObject losePanel;
@@ -38,6 +42,8 @@ public class PlayerController : MonoBehaviour
     
     void Start()
     {
+        
+
         anim = GetComponentInChildren<Animator>();
         if (anim == null)
             Debug.LogWarning("Animator not found in children!");
@@ -75,6 +81,13 @@ public class PlayerController : MonoBehaviour
         else
         {
             Debug.LogWarning("batteriesText is not assigned!");
+        }
+
+        // Применяем улучшения (постоянные и на забег)
+        if (UpgradesManager.Instance != null)
+        {
+            UpgradesManager.Instance.ApplyPermanentEffects(this, scoreScript);
+            UpgradesManager.Instance.ApplyPerRunEffects(this, scoreScript);
         }
         
         if (playerSpotLight == null)
@@ -171,9 +184,10 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        currentSpeed = speed * permanentSpeedMultiplier * temporarySpeedMultiplier;
         if (controller != null)
         {
-            dir.z = speed;
+            dir.z = currentSpeed;
             dir.y = controller.isGrounded ? (dir.y < 0 ? -1f : dir.y) : dir.y + gravity * Time.fixedDeltaTime;
             controller.Move(dir * Time.fixedDeltaTime);
         }
@@ -245,12 +259,18 @@ public class PlayerController : MonoBehaviour
     {
         if (coin == null) return;
 
-        coins++;
+        int baseValue = scoreScript.GetBaseCoinValue();
+        float tempMult = scoreScript.GetTemporaryCoinMultiplier();
+        int finalCoins = Mathf.FloorToInt(baseValue * tempMult);
+
+        coins += finalCoins;
         PlayerPrefs.SetInt("coins", coins);
-        if (coinsText != null)
-            coinsText.text = coins.ToString();
+        if (coinsText != null) coinsText.text = coins.ToString();
         statsManager?.AddCoin();
         Destroy(coin);
+
+        if (SFXManager.Instance != null && coinSound != null)
+        SFXManager.Instance.PlaySound(coinSound);
     }
     
     private void CollectBattery(GameObject battery)
@@ -383,6 +403,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public float GetCurrentSpeed() => currentSpeed;
+
     private IEnumerator StarBonus()
     {
         if (score != null)
@@ -413,11 +435,6 @@ public class PlayerController : MonoBehaviour
             batteriesText.text = "0";
     }
 
-    public float GetCurrentSpeed()
-    {
-        return speed;
-    }
-
     void UpdateAnimatorReference()
     {
         // Ищем новый аниматор среди детей
@@ -431,5 +448,75 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogWarning("Animator not found after skin change!");
         }
+    }
+
+    // ---------- МЕТОДЫ ДЛЯ УЛУЧШЕНИЙ ----------
+
+    // Увеличение базовой скорости (постоянное)
+    public void IncreaseBaseSpeed(float increment)
+    {
+        permanentSpeedMultiplier += increment;   // increment = 0.05f для +5%
+    }
+
+    // Временное ускорение (на один забег или на время)
+    public void ApplyTemporarySpeedBoost(float multiplier, float duration)
+    {
+        temporarySpeedMultiplier = multiplier;
+        if (duration < float.PositiveInfinity)
+            StartCoroutine(RevertSpeedMultiplierAfterTime(duration));
+    }
+
+    private IEnumerator RevertSpeedMultiplierAfterTime(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        temporarySpeedMultiplier = 1f;
+    }
+
+    // Временная неуязвимость
+    public void ApplyTemporaryInvincibility(float duration)
+    {
+        StartCoroutine(TemporaryInvincibilityCoroutine(duration));
+    }
+
+    private IEnumerator TemporaryInvincibilityCoroutine(float duration)
+    {
+        bool wasImmortal = isImmortal;
+        isImmortal = true;
+        yield return new WaitForSeconds(duration);
+        isImmortal = wasImmortal;
+    }
+
+    // Временный магнит для монет
+    public void ApplyTemporaryMagnet(float radius, float duration)
+    {
+        float originalRadius = coinMagnetRadius;
+        coinMagnetRadius = radius;
+        StartCoroutine(RevertMagnetAfterTime(originalRadius, duration));
+    }
+
+    private IEnumerator RevertMagnetAfterTime(float originalRadius, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        coinMagnetRadius = originalRadius;
+    }
+
+    // Установить неуязвимость (постоянно для забега)
+    public void SetInvincible(bool invincible)
+    {
+        isImmortal = invincible;
+    }
+
+    // Установить радиус магнита (постоянно для забега)
+    public void SetMagnetRadius(float radius)
+    {
+        coinMagnetRadius = radius;
+    }
+
+    // Добавить стартовые батарейки (постоянное улучшение)
+    public void AddStartBatteries(int count)
+    {
+        batteriesCollected += count;
+        if (batteriesText != null)
+            batteriesText.text = batteriesCollected.ToString();
     }
 }

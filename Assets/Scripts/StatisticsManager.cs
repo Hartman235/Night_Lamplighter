@@ -6,10 +6,12 @@ public class StatisticsManager : MonoBehaviour
 {
     public static StatisticsManager Instance { get; private set; }
     
+    // NEW: событие для уведомления об изменении статистики
+    public event Action OnStatisticsChanged;
+    
     private const string STATS_KEY = "GameStatistics";
     private GameStatistics stats;
     
-    // Текущие значения для этой сессии
     private int sessionCoins;
     private int sessionBatteries;
     private float sessionDistance;
@@ -25,7 +27,6 @@ public class StatisticsManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-           
             LoadStatistics();
         }
         else
@@ -59,6 +60,8 @@ public class StatisticsManager : MonoBehaviour
         string json = JsonUtility.ToJson(stats);
         PlayerPrefs.SetString(STATS_KEY, json);
         PlayerPrefs.Save();
+        // NEW: уведомить о любом изменении статистики (например, после сохранения)
+        OnStatisticsChanged?.Invoke();
     }
     
     void ResetSessionStats()
@@ -69,52 +72,54 @@ public class StatisticsManager : MonoBehaviour
         sessionStartTime = Time.time;
     }
     
-    // Вызывается при старте новой игры
     public void StartNewGame()
     {
         stats.totalGamesPlayed++;
         ResetSessionStats();
         sessionStartTime = Time.time;
+        // NEW: уведомить об изменении
+        OnStatisticsChanged?.Invoke();
     }
     
-    // Вызывается при окончании игры
     public void EndGame(int finalScore, float finalDistance)
     {
-        // Обновляем общую статистику
         stats.totalCoinsCollected += sessionCoins;
         stats.totalBatteriesCollected += sessionBatteries;
         stats.totalDistanceRun += sessionDistance;
         stats.totalPlayTime += Time.time - sessionStartTime;
         
-        // Обновляем лучший результат
         if (finalScore > stats.bestDistance)
         {
             stats.bestDistance = finalScore;
         }
         
-        SaveStatistics();
+        SaveStatistics(); // здесь уже вызовется событие
     }
     
-    // Вызывается при сборе монеты
     public void AddCoin()
     {
         sessionCoins++;
         if (updateUIInRealTime)
         {
-            // Можно обновлять UI в реальном времени, если нужно
+            // Можно обновлять UI в реальном времени
         }
+        // NEW: уведомить об изменении (чтобы проверить достижения)
+        OnStatisticsChanged?.Invoke();
     }
     
-    // Вызывается при сборе батарейки
     public void AddBattery()
     {
         sessionBatteries++;
+        // NEW: уведомить об изменении
+        OnStatisticsChanged?.Invoke();
     }
     
-    // Обновление пройденной дистанции (вызывать из PlayerController)
     public void UpdateDistance(float distance)
     {
         sessionDistance = distance;
+        // NEW: уведомить об изменении (опционально, если нужно часто)
+        // Можно вызывать реже, но для достижения "пробежать N метров" нужно.
+        OnStatisticsChanged?.Invoke();
     }
 
     public void BackToMainMenu()
@@ -122,7 +127,7 @@ public class StatisticsManager : MonoBehaviour
         SceneManager.LoadScene(mainMenuScene);
     }
     
-    // Геттеры для UI
+    // Геттеры
     public int GetTotalGames() => stats.totalGamesPlayed;
     public int GetTotalCoins() => stats.totalCoinsCollected;
     public int GetTotalBatteries() => stats.totalBatteriesCollected;

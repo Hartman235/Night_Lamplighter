@@ -14,9 +14,12 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private string shopSceneName = "Records"; // Новая
     [SerializeField] private string statisticsSceneName = "Statistics";
     [SerializeField] private string tutorialSceneName = "Tutorial";
+    [SerializeField] private string achievements = "Achievements";
     
     void Start()
     {
+        if (MusicManager.Instance != null)
+        MusicManager.Instance.PlayMusic();
         // Загружаем количество монет
         int coins = PlayerPrefs.GetInt("coins", 0);
         coinsText.text = coins.ToString();
@@ -62,5 +65,10 @@ public class MainMenu : MonoBehaviour
     public void OpenTutorial()
     {
         SceneManager.LoadScene(tutorialSceneName);
+    }
+
+    public void OpenAchievements()
+    {
+        SceneManager.LoadScene(achievements);
     }
 }
