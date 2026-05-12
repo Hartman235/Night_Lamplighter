@@ -30,7 +30,6 @@ public class AchievementsUI : MonoBehaviour
 
     private void RefreshUI()
     {
-        // очистка
         foreach (Transform child in contentParent)
             Destroy(child.gameObject);
         spawnedItems.Clear();

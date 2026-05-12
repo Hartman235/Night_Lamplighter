@@ -55,7 +55,7 @@ public class Score : MonoBehaviour
 
     public float GetCurrentScoreRate() => currentRate;
 
-    public void AddPermanentCoinBonus(int extra)   // теперь int, а не float
+    public void AddPermanentCoinBonus(int extra)   
     {
         permanentExtraCoins += extra;
     }
@@ -75,7 +75,6 @@ public class Score : MonoBehaviour
         coinMultiplierCoroutine = null;
     }
 
-    // НОВЫЙ МЕТОД – нужен для PlayerController
     public int GetBaseCoinValue() => 1 + permanentExtraCoins;
     public float GetTemporaryCoinMultiplier() => temporaryCoinMultiplier;
     public float GetCoinMultiplier()

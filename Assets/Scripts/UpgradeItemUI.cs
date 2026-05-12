@@ -31,7 +31,6 @@ public class UpgradeItemUI : MonoBehaviour
         
         if (upgrade.isPerRun)
         {
-            // Проверяем, не куплено ли уже это временное улучшение
             bool alreadyPurchased = UpgradesManager.Instance.IsPerRunUpgradePurchased(upgrade.upgradeId);
             if (alreadyPurchased)
             {
@@ -45,7 +44,7 @@ public class UpgradeItemUI : MonoBehaviour
             }
             levelText.gameObject.SetActive(false);
         }
-        else // постоянное улучшение
+        else 
         {
             buyButton.interactable = canBuy;
             priceText.text = UpgradesManager.Instance.GetCurrentPrice(upgrade).ToString();

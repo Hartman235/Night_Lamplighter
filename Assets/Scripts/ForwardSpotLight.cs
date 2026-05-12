@@ -15,7 +15,7 @@ public class ForwardSpotLight : MonoBehaviour
     public float forwardOffset = 2f;
     
     [Header("Battery Bonus Settings")]
-    public bool isBatteryActive = false; // Флаг активности батарейки
+    public bool isBatteryActive = false; 
     private float normalRange;
     private float normalIntensity;
     private float normalSpotAngle;
@@ -23,7 +23,7 @@ public class ForwardSpotLight : MonoBehaviour
     [Header("Battery Bonus Values")]
     public float batteryRange = 90f;
     public float batteryIntensity = 2000f;
-    public float batterySpotAngle = 60f; // Угол оставляем тот же или меняем если нужно
+    public float batterySpotAngle = 60f; 
     
     private Transform playerTransform;
     private bool isInitialized = false;
@@ -33,7 +33,6 @@ public class ForwardSpotLight : MonoBehaviour
         FindPlayer();
         InitializeLight();
         
-        // Сохраняем нормальные значения
         normalRange = lightRange;
         normalIntensity = lightIntensity;
         normalSpotAngle = spotAngle;
@@ -43,35 +42,30 @@ public class ForwardSpotLight : MonoBehaviour
     {
         if (playerLight == null)
         {
-            // Ищем Light компонент на этом объекте или дочерних
             playerLight = GetComponentInChildren<Light>();
             
             if (playerLight == null)
             {
-                // Создаем новый если не найден
                 GameObject lightObj = new GameObject("PlayerSpotLight");
                 lightObj.transform.SetParent(transform);
                 playerLight = lightObj.AddComponent<Light>();
             }
         }
         
-        // Устанавливаем начальные значения ПРЯМО в компонент
         playerLight.type = LightType.Spot;
         ApplyLightSettings();
         
         isInitialized = true;
     }
     
-    // Важно! Используем LateUpdate для гарантии применения настроек
     void LateUpdate()
     {
         if (!isInitialized || playerLight == null || playerTransform == null)
             return;
             
         UpdateLightPosition();
-        ApplyLightSettings(); // Всегда применяем настройки
+        ApplyLightSettings(); 
         
-        // Опционально: мерцание (только если батарейка не активна)
         if (!isBatteryActive && Random.value < 0.03f)
         {
             playerLight.intensity = lightIntensity * Random.Range(0.95f, 1.05f);
@@ -105,87 +99,73 @@ public class ForwardSpotLight : MonoBehaviour
         
         transform.position = targetPosition;
         
-        // Направляем свет
         Vector3 lookDirection = playerTransform.forward;
         
-        // Если батарейка активна - применяем дополнительный наклон вниз
         if (isBatteryActive)
         {
-            // Поворачиваем свет вниз на batteryTiltAngle градусов
             Quaternion forwardRotation = Quaternion.LookRotation(playerTransform.forward);
         }
         else
         {
-            // Обычное направление - немного вниз
             lookDirection.y = -0.3f;
             playerLight.transform.rotation = Quaternion.LookRotation(lookDirection.normalized);
         }
     }
     
-    // Методы для изменения параметров
     public void SetLightRange(float newRange)
     {
         lightRange = newRange;
         if (playerLight != null)
-            playerLight.range = newRange; // Применяем сразу
+            playerLight.range = newRange; 
     }
     
     public void SetSpotAngle(float newAngle)
     {
         spotAngle = newAngle;
         if (playerLight != null)
-            playerLight.spotAngle = newAngle; // Применяем сразу
+            playerLight.spotAngle = newAngle; 
     }
     
     public void SetLightIntensity(float newIntensity)
     {
         lightIntensity = newIntensity;
         if (playerLight != null)
-            playerLight.intensity = newIntensity; // Применяем сразу
+            playerLight.intensity = newIntensity;
     }
     
-    // НОВЫЙ МЕТОД: Активация бонуса от батарейки
     public void ActivateBatteryBonus(float duration)
     {
-        if (isBatteryActive) return; // Если уже активна - игнорируем
+        if (isBatteryActive) return; 
         
-        StopAllCoroutines(); // Останавливаем предыдущие корутины
+        StopAllCoroutines(); 
         StartCoroutine(BatteryBonusCoroutine(duration));
     }
     
     private System.Collections.IEnumerator BatteryBonusCoroutine(float duration)
     {
-        // Активируем бонус
         isBatteryActive = true;
         
-        // Сохраняем текущие значения
         normalRange = lightRange;
         normalIntensity = lightIntensity;
         normalSpotAngle = spotAngle;
         
-        // Устанавливаем бонусные значения
         lightRange = batteryRange;
         lightIntensity = batteryIntensity;
         spotAngle = batterySpotAngle;
         
-        // ПРИМЕНЯЕМ сразу
         ApplyLightSettings();
         
-        // Ждем указанное время
         yield return new WaitForSeconds(duration);
         
-        // Возвращаем обычные значения
         lightRange = normalRange;
         lightIntensity = normalIntensity;
         spotAngle = normalSpotAngle;
         
-        // ПРИМЕНЯЕМ сразу
         ApplyLightSettings();
         
         isBatteryActive = false;
     }
         
-    // Для Editor: синхронизируем значения при изменении в инспекторе
     void OnValidate()
     {
         if (playerLight != null && Application.isPlaying == false)

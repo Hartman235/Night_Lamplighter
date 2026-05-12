@@ -6,7 +6,7 @@ public class PauseMenu : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private GameObject pausePanel;
-    [SerializeField] private Button pauseButton; // можно не использовать
+    [SerializeField] private Button pauseButton; 
     
     [Header("Scene Names")]
     [SerializeField] private string mainMenuScene = "MainMenu";
@@ -15,9 +15,6 @@ public class PauseMenu : MonoBehaviour
 
     void Start()
     {
-        // Убираем слушатель, чтобы не дублировать
-        // if (pauseButton != null) pauseButton.onClick.AddListener(TogglePause);
-        
         if (pausePanel != null)
             pausePanel.SetActive(false);
     }

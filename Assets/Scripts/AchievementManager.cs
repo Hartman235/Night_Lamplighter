@@ -110,7 +110,6 @@ public class AchievementManager : MonoBehaviour
         achievementClaimed[achievementId] = true;
         SaveClaimed(achievementId, true);
         
-        // Уведомляем UI об изменении (чтобы обновить список)
         OnAchievementsUpdated?.Invoke();
         return true;
     }

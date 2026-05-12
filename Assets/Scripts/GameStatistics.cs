@@ -4,14 +4,13 @@ using System;
 [System.Serializable]
 public class GameStatistics
 {
-    public int totalGamesPlayed;        // Всего игр
-    public int totalCoinsCollected;     // Всего монет
-    public int totalBatteriesCollected; // Всего батареек
-    public float totalDistanceRun;      // Общая дистанция
-    public float totalPlayTime;          // Общее время в игре
-    public int bestDistance;             // Лучший результат (уже есть как recordScore)
+    public int totalGamesPlayed;        
+    public int totalCoinsCollected;    
+    public int totalBatteriesCollected; 
+    public float totalDistanceRun;     
+    public float totalPlayTime;          
+    public int bestDistance;             
     
-    // Для сериализации
     public string lastUpdated;
     
     public GameStatistics()
@@ -25,7 +24,6 @@ public class GameStatistics
         lastUpdated = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
     }
     
-    // Обновить время последнего обновления
     public void UpdateTimestamp()
     {
         lastUpdated = DateTime.Now.ToString("dd.MM.yyyy HH:mm");

@@ -8,10 +8,10 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Text coinsText;
     
     [Header("Scene Names")]
-    [SerializeField] private string gameSceneName = "Game";      // Сцена с игрой
-    [SerializeField] private string settingsSceneName = "Settings"; // Сцена настроек
-    [SerializeField] private string recordsSceneName = "Records"; // Новая
-    [SerializeField] private string shopSceneName = "Records"; // Новая
+    [SerializeField] private string gameSceneName = "Game";      
+    [SerializeField] private string settingsSceneName = "Settings"; 
+    [SerializeField] private string recordsSceneName = "Records";
+    [SerializeField] private string shopSceneName = "Records"; 
     [SerializeField] private string statisticsSceneName = "Statistics";
     [SerializeField] private string tutorialSceneName = "Tutorial";
     [SerializeField] private string achievements = "Achievements";
@@ -20,12 +20,8 @@ public class MainMenu : MonoBehaviour
     {
         if (MusicManager.Instance != null)
         MusicManager.Instance.PlayMusic();
-        // Загружаем количество монет
         int coins = PlayerPrefs.GetInt("coins", 0);
         coinsText.text = coins.ToString();
-        
-        // Убеждаемся, что время идет нормально (если вернулись из игры)
-        //Time.timeScale = 1;
     }
     
     public void PlayGame()

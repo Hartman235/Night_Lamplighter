@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.EventSystems; // добавлено для проверки UI
+using UnityEngine.EventSystems; 
 
 public class SwipeController : MonoBehaviour
 {
@@ -11,12 +11,12 @@ public class SwipeController : MonoBehaviour
     private float touchStartTime;
     
     [Header("Swipe Settings")]
-    public float minSwipeDistance = 70f;      // Минимальная дистанция для свайпа
-    public float maxSwipeTime = 0.4f;          // Максимальное время для свайпа
+    public float minSwipeDistance = 70f;      
+    public float maxSwipeTime = 0.4f;          
     
     [Header("Double Tap Settings")]
-    public float maxDoubleTapDistance = 20f;   // Максимальное расстояние для двойного тапа
-    public float maxDoubleTapTime = 0.3f;       // Максимальное время между тапами
+    public float maxDoubleTapDistance = 20f;   
+    public float maxDoubleTapTime = 0.3f;       
     
     private float lastTapTime = 0f;
     private Vector2 lastTapPosition = Vector2.zero;
@@ -24,14 +24,11 @@ public class SwipeController : MonoBehaviour
     
     void Update()
     {
-        // Сбрасываем флаги
         tap = swipeDown = swipeUp = swipeLeft = swipeRight = false;
         doubleTap = false;
         
-        // Обработка мыши (ПК)
         if (Input.GetMouseButtonDown(0))
         {
-            // Игнорируем, если касание по UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;
             StartTouch(Input.mousePosition);
@@ -41,11 +38,9 @@ public class SwipeController : MonoBehaviour
             EndTouch(Input.mousePosition);
         }
         
-        // Обработка тачей (мобильные)
         if (Input.touches.Length > 0)
         {
             Touch touch = Input.touches[0];
-            // Игнорируем, если касание по UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
                 return;
             
@@ -59,13 +54,11 @@ public class SwipeController : MonoBehaviour
             }
         }
         
-        // Обработка свайпа во время движения
         if (isDraging)
         {
             Vector2 currentPos = GetCurrentPosition();
             swipeDelta = currentPos - startTouch;
             
-            // Проверяем свайп
             if (swipeDelta.magnitude > minSwipeDistance && 
                 Time.time - touchStartTime < maxSwipeTime)
             {
@@ -78,7 +71,6 @@ public class SwipeController : MonoBehaviour
     
     void StartTouch(Vector2 position)
     {
-        // Дополнительная страховка – если вдруг не сработало выше
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
         
@@ -95,12 +87,9 @@ public class SwipeController : MonoBehaviour
         float touchDuration = Time.time - touchStartTime;
         float moveDistance = Vector2.Distance(startTouch, position);
         
-        // Если это короткое касание с маленьким движением - это тап
         if (touchDuration < maxSwipeTime && moveDistance < minSwipeDistance)
         {
             tap = true;
-            
-            // Проверяем двойной тап
             float timeSinceLastTap = Time.time - lastTapTime;
             float distanceFromLastTap = Vector2.Distance(position, lastTapPosition);
             
@@ -110,7 +99,6 @@ public class SwipeController : MonoBehaviour
                 doubleTap = true;
             }
             
-            // Запоминаем этот тап для следующей проверки
             lastTapTime = Time.time;
             lastTapPosition = position;
         }

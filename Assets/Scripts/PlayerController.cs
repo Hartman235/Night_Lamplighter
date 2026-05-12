@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float speed;
     private float permanentSpeedMultiplier = 1f;
     private float temporarySpeedMultiplier = 1f;
-    [SerializeField] private AudioClip coinSound; // перетащите звук в инспекторе
+    [SerializeField] private AudioClip coinSound; 
     [SerializeField] private float currentSpeed; 
     [SerializeField] private float jumpForce;
     [SerializeField] private float gravity;
@@ -27,7 +27,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask batteryLayer;
     [SerializeField] private Score scoreScript;
     
-    // Поля для батареек
     [SerializeField] private int batteriesCollected;
     [SerializeField] private Text batteriesText;
     [SerializeField] private ForwardSpotLight playerSpotLight;
@@ -36,7 +35,6 @@ public class PlayerController : MonoBehaviour
     private bool isSliding = false;
     private bool isImmortal;
     
-    // Для двойного тапа
     private float lastTapTime = 0f;
     private float doubleTapThreshold = 0.3f;
     
@@ -48,7 +46,6 @@ public class PlayerController : MonoBehaviour
         if (anim == null)
             Debug.LogWarning("Animator not found in children!");
 
-        // Подписываемся на событие смены скина
         SkinLoader.OnSkinChanged += UpdateAnimatorReference;
 
         controller = GetComponent<CharacterController>();
@@ -83,7 +80,6 @@ public class PlayerController : MonoBehaviour
             Debug.LogWarning("batteriesText is not assigned!");
         }
 
-        // Применяем улучшения (постоянные и на забег)
         if (UpgradesManager.Instance != null)
         {
             UpgradesManager.Instance.ApplyPermanentEffects(this, scoreScript);
@@ -106,7 +102,6 @@ public class PlayerController : MonoBehaviour
 
     void OnDestroy()
     {
-        // Важно отписаться от события, чтобы избежать утечек памяти
         SkinLoader.OnSkinChanged -= UpdateAnimatorReference;
     }
 
@@ -120,7 +115,7 @@ public class PlayerController : MonoBehaviour
         {
             TryActivateBattery();
         }
-        // Управление движением
+
         if (SwipeController.swipeRight)
         {
             if (lineToMove < 2) lineToMove++;
@@ -134,25 +129,21 @@ public class PlayerController : MonoBehaviour
             Jump();
         }
 
-        // Свайп вниз = подкат
         if (SwipeController.swipeDown)
         {
             StartCoroutine(Slide());
         }
         
-        // ТАП - проверяем двойной тап
         if (SwipeController.tap && !SwipeController.wasSwipe)
         {
             CheckForDoubleTap();
         }
 
-        // Анимация
         if (anim != null && controller != null)
         {
             anim.SetBool("Running", controller.isGrounded && !isSliding);
         }
 
-        // Движение по линиям
         if (controller != null)
         {
             Vector3 targetPosition = transform.position.z * transform.forward + transform.position.y * transform.up;
@@ -193,7 +184,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // Проверка двойного тапа
     private void CheckForDoubleTap()
     {
         float currentTime = Time.time;
@@ -254,7 +244,6 @@ public class PlayerController : MonoBehaviour
         isSliding = false;
     }
 
-    // Сбор монет и батареек
     private void CollectCoin(GameObject coin)
     {
         if (coin == null) return;
@@ -300,7 +289,6 @@ public class PlayerController : MonoBehaviour
             CollectBattery(battery.gameObject);
     }
     
-    // Активация батарейки
     private void TryActivateBattery()
     {
         if (batteriesCollected <= 0) return;
@@ -343,17 +331,15 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                // Получаем текущий счет
                 int currentScore = 0;
                 if (scoreScript != null && scoreScript.scoreText != null)
                 {
                     int.TryParse(scoreScript.scoreText.text, out currentScore);
                 }
                 
-                currentScore++; // Увеличиваем на 1 (как в оригинале)
+                currentScore++; 
                 PlayerPrefs.SetInt("lastRunScore", currentScore);
                 
-                // Завершаем игру в статистике
                 statsManager?.EndGame(currentScore, transform.position.z);
                 
                 GameOverManager gameOverManager = FindAnyObjectByType<GameOverManager>();
@@ -437,7 +423,6 @@ public class PlayerController : MonoBehaviour
 
     void UpdateAnimatorReference()
     {
-        // Ищем новый аниматор среди детей
         anim = GetComponentInChildren<Animator>();
         
         if (anim != null)
@@ -450,15 +435,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ---------- МЕТОДЫ ДЛЯ УЛУЧШЕНИЙ ----------
-
-    // Увеличение базовой скорости (постоянное)
     public void IncreaseBaseSpeed(float increment)
     {
-        permanentSpeedMultiplier += increment;   // increment = 0.05f для +5%
+        permanentSpeedMultiplier += increment;  
     }
 
-    // Временное ускорение (на один забег или на время)
     public void ApplyTemporarySpeedBoost(float multiplier, float duration)
     {
         temporarySpeedMultiplier = multiplier;
@@ -472,7 +453,6 @@ public class PlayerController : MonoBehaviour
         temporarySpeedMultiplier = 1f;
     }
 
-    // Временная неуязвимость
     public void ApplyTemporaryInvincibility(float duration)
     {
         StartCoroutine(TemporaryInvincibilityCoroutine(duration));
@@ -486,7 +466,6 @@ public class PlayerController : MonoBehaviour
         isImmortal = wasImmortal;
     }
 
-    // Временный магнит для монет
     public void ApplyTemporaryMagnet(float radius, float duration)
     {
         float originalRadius = coinMagnetRadius;
@@ -500,19 +479,16 @@ public class PlayerController : MonoBehaviour
         coinMagnetRadius = originalRadius;
     }
 
-    // Установить неуязвимость (постоянно для забега)
     public void SetInvincible(bool invincible)
     {
         isImmortal = invincible;
     }
 
-    // Установить радиус магнита (постоянно для забега)
     public void SetMagnetRadius(float radius)
     {
         coinMagnetRadius = radius;
     }
 
-    // Добавить стартовые батарейки (постоянное улучшение)
     public void AddStartBatteries(int count)
     {
         batteriesCollected += count;

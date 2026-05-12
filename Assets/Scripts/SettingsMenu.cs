@@ -42,22 +42,18 @@ public class SettingsMenu : MonoBehaviour
             vibrationToggle.isOn = PlayerPrefs.GetInt(VIBRATION_KEY, 1) == 1;
     }
 
-    // ИЗМЕНЯЕМ существующий метод
     public void SetMusicVolume(float volume)
     {
         PlayerPrefs.SetFloat(MUSIC_VOLUME_KEY, volume);
         PlayerPrefs.Save();
-        // Применяем громкость к MusicManager
         if (MusicManager.Instance != null)
             MusicManager.Instance.SetVolume(volume);
     }
 
-    // ИЗМЕНЯЕМ существующий метод
     public void SetSFXVolume(float volume)
     {
         PlayerPrefs.SetFloat(SFX_VOLUME_KEY, volume);
         PlayerPrefs.Save();
-        // Применяем громкость к SFXManager
         if (SFXManager.Instance != null)
             SFXManager.Instance.SetVolume(volume);
     }

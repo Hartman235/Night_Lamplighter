@@ -12,7 +12,6 @@ public class UpgradesUI : MonoBehaviour
 
     private void OnEnable()
     {
-        // Подписываемся только когда объект активен
         if (UpgradesManager.Instance != null)
         {
             UpgradesManager.Instance.OnUpgradePurchased += OnUpgradePurchasedHandler;
@@ -24,7 +23,6 @@ public class UpgradesUI : MonoBehaviour
 
     private void OnDisable()
     {
-        // Отписываемся, когда объект выключается или уничтожается
         if (UpgradesManager.Instance != null)
         {
             UpgradesManager.Instance.OnUpgradePurchased -= OnUpgradePurchasedHandler;
@@ -34,7 +32,6 @@ public class UpgradesUI : MonoBehaviour
 
     private void OnUpgradePurchasedHandler(string id, int level)
     {
-        // Дополнительная проверка – объект ещё существует и активен
         if (this == null || !gameObject.activeInHierarchy) return;
         RefreshUI();
         UpdateCoins();
@@ -55,10 +52,8 @@ public class UpgradesUI : MonoBehaviour
 
     private void RefreshUI()
     {
-        // Проверяем, что родительский контейнер ещё существует
         if (contentParent == null) return;
 
-        // Очищаем старые элементы
         foreach (Transform child in contentParent)
         {
             if (child != null)
@@ -68,7 +63,6 @@ public class UpgradesUI : MonoBehaviour
 
         if (UpgradesManager.Instance == null) return;
 
-        // Создаём новые элементы
         foreach (var upgrade in UpgradesManager.Instance.GetAllUpgrades())
         {
             if (upgrade == null) continue;

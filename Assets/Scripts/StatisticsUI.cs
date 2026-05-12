@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement; // ← ЭТОЙ СТРОКИ НЕ ХВАТАЛО!
+using UnityEngine.SceneManagement;
 
 public class StatisticsUI : MonoBehaviour
 {
@@ -64,7 +64,6 @@ public class StatisticsUI : MonoBehaviour
     
     void OnEnable()
     {
-        // Обновляем UI при каждом показе сцены
         UpdateUI();
     }
 }

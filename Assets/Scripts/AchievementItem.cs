@@ -12,7 +12,7 @@ public class AchievementItem : MonoBehaviour
     [SerializeField] private Button claimButton;
     [SerializeField] private Image checkmarkImage;
     [SerializeField] private Image iconImage;
-    [SerializeField] private Image backgroundImage;   // фон элемента
+    [SerializeField] private Image backgroundImage;   
 
     private AchievementData data;
     private bool isUnlocked;
@@ -25,17 +25,14 @@ public class AchievementItem : MonoBehaviour
         isUnlocked = unlocked;
         isClaimed = claimed;
 
-        // текстовые поля
         titleText.text = ach.title;
         descriptionText.text = ach.description;
         rewardText.text = $"+{ach.rewardCoins} монет";
         if (iconImage != null && ach.icon != null)
             iconImage.sprite = ach.icon;
 
-        // прогресс
         UpdateProgress();
 
-        // состояние кнопки и галочки
         if (isClaimed)
         {
             claimButton.gameObject.SetActive(false);
@@ -54,7 +51,6 @@ public class AchievementItem : MonoBehaviour
             if (checkmarkImage != null) checkmarkImage.gameObject.SetActive(false);
         }
 
-        // обновляем цвет фона
         UpdateBackgroundColor();
     }
 

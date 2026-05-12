@@ -78,11 +78,10 @@ public class UpgradesManager : MonoBehaviour
     {
         if (!CanPurchase(upgrade)) return false;
 
-        // Для временных улучшений – проверяем, не куплено ли уже
         if (upgrade.isPerRun)
         {
             if (activePerRunUpgrades.Contains(upgrade))
-                return false; // уже куплено на этот забег
+                return false; 
         }
 
         int price = GetCurrentPrice(upgrade);
@@ -93,7 +92,7 @@ public class UpgradesManager : MonoBehaviour
         if (upgrade.isPerRun)
         {
             activePerRunUpgrades.Add(upgrade);
-            OnPerRunUpgradesChanged?.Invoke(); // обновит UI
+            OnPerRunUpgradesChanged?.Invoke(); 
         }
         else
         {

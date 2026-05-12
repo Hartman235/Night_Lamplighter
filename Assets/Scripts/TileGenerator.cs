@@ -10,13 +10,13 @@ public class TileGenerator : MonoBehaviour
     public float tileLength = 100;
     
     [Header("Obstacle Settings")]
-    public GameObject[] obstaclePrefabs;        // Препятствия
+    public GameObject[] obstaclePrefabs;        
     [Range(0, 1)] public float obstacleChance = 0.5f;
     public int minObstacles = 1;
     public int maxObstacles = 3;
     
     [Header("Bonus Settings")]
-    public GameObject[] bonusPrefabs;           // Бонусы (звезда, щит)
+    public GameObject[] bonusPrefabs;          
     [Range(0, 1)] public float bonusChance = 0.2f;
     
     [Header("Coin Settings")]
@@ -26,36 +26,34 @@ public class TileGenerator : MonoBehaviour
     public int maxCoins = 6;
     
     [Header("Lane Settings")]
-    public float laneWidth = 4f;                 // Ширина одной игровой полосы
-    public int laneCount = 3;                     // Количество полос (всегда 3)
+    public float laneWidth = 4f;                
+    public int laneCount = 3;                    
     
     [Header("Spacing Settings")]
-    public float minDistanceBetweenObjects = 8f;  // Минимальное расстояние между объектами на дороге
-    public float minDecorDistance = 20f;          // Минимальное расстояние между декорациями на одной стороне
-    public float minLamppostCrossDistance = 15f;  // Минимальное расстояние между фонарями с разных сторон
+    public float minDistanceBetweenObjects = 8f;  
+    public float minDecorDistance = 20f;          
+    public float minLamppostCrossDistance = 15f;  
     
     [Header("Decoration Settings")]
-    public GameObject[] buildingPrefabs;          // Префабы зданий
+    public GameObject[] buildingPrefabs;         
     [Range(0, 1)] public float buildingChance = 0.8f;
     public int minBuildings = 2;
     public int maxBuildings = 4;
     
-    public GameObject[] lamppostPrefabs;          // Префабы фонарных столбов
+    public GameObject[] lamppostPrefabs;          
     [Range(0, 1)] public float lamppostChance = 0.5f;
     public int minLampposts = 1;
     public int maxLampposts = 2;
     
     [Header("Decoration Offsets")]
-    public float buildingXOffset = 12f;           // Отступ зданий от центра дороги
-    public float lamppostXOffset = 8f;            // Отступ столбов от центра дороги
+    public float buildingXOffset = 12f;           
+    public float lamppostXOffset = 8f;            
     
     private List<GameObject> activeTiles = new List<GameObject>();
     private float spawnPos = 0;
     
-    // Для отслеживания занятых позиций на текущем тайле (для препятствий/монет/бонусов)
     private List<Vector3> spawnedPositions = new List<Vector3>();
     
-    // Списки для предотвращения наложения декораций
     private List<float> leftBuildingZ = new List<float>();
     private List<float> rightBuildingZ = new List<float>();
     private List<float> leftLamppostZ = new List<float>();
@@ -93,14 +91,12 @@ public class TileGenerator : MonoBehaviour
     
     void GenerateTileContent(GameObject tile, float tileStartZ)
     {
-        // Очищаем списки занятых позиций для этого тайла
         spawnedPositions.Clear();
         leftBuildingZ.Clear();
         rightBuildingZ.Clear();
         leftLamppostZ.Clear();
         rightLamppostZ.Clear();
         
-        // --- Генерация объектов на дороге ---
         if (obstaclePrefabs.Length > 0 && Random.value < obstacleChance)
         {
             int obstacleCount = Random.Range(minObstacles, maxObstacles + 1);
@@ -118,26 +114,20 @@ public class TileGenerator : MonoBehaviour
             GenerateBonus(tile, tileStartZ);
         }
         
-        // --- Генерация зданий (могут стоять напротив друг друга) ---
         if (buildingPrefabs.Length > 0 && Random.value < buildingChance)
         {
             int buildingCount = Random.Range(minBuildings, maxBuildings + 1);
-            // Левая сторона (проверяем только свою сторону)
             GenerateUniformDecorations(tile, tileStartZ, buildingCount, buildingPrefabs, 
                                        -buildingXOffset, leftBuildingZ, false, null);
-            // Правая сторона (проверяем только свою сторону)
             GenerateUniformDecorations(tile, tileStartZ, buildingCount, buildingPrefabs, 
                                        buildingXOffset, rightBuildingZ, false, null);
         }
         
-        // --- Генерация фонарей (не должны стоять напротив друг друга) ---
         if (lamppostPrefabs.Length > 0 && Random.value < lamppostChance)
         {
             int lamppostCount = Random.Range(minLampposts, maxLampposts + 1);
-            // Левая сторона (проверяем свою сторону и правую сторону фонарей)
             GenerateUniformDecorations(tile, tileStartZ, lamppostCount, lamppostPrefabs, 
                                        -lamppostXOffset, leftLamppostZ, true, rightLamppostZ);
-            // Правая сторона (проверяем свою сторону и левую сторону фонарей)
             GenerateUniformDecorations(tile, tileStartZ, lamppostCount, lamppostPrefabs, 
                                        lamppostXOffset, rightLamppostZ, true, leftLamppostZ);
         }
@@ -338,11 +328,6 @@ public class TileGenerator : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// Равномерно распределяет объекты по длине тайла
-    /// </summary>
-    /// <param name="checkOppositeSide">Нужно ли проверять расстояние с объектами на противоположной стороне</param>
-    /// <param name="oppositeSideList">Список позиций на противоположной стороне (если checkOppositeSide = true)</param>
     void GenerateUniformDecorations(GameObject tile, float tileStartZ, int count, GameObject[] prefabs, 
                                     float xOffset, List<float> usedZList, bool checkOppositeSide, List<float> oppositeSideList)
     {
@@ -366,11 +351,9 @@ public class TileGenerator : MonoBehaviour
                 attempts++;
                 float zPos = Random.Range(zMin, zMax);
 
-                // Отступ от краёв тайла
                 if (zPos < tileStartZ + 15f || zPos > tileStartZ + tileLength - 15f)
                     continue;
 
-                // Проверка расстояния с объектами на этой же стороне
                 bool tooClose = false;
                 foreach (float existingZ in usedZList)
                 {
@@ -382,7 +365,6 @@ public class TileGenerator : MonoBehaviour
                 }
                 if (tooClose) continue;
 
-                // Если нужно проверить противоположную сторону
                 if (checkOppositeSide && oppositeSideList != null)
                 {
                     foreach (float existingZ in oppositeSideList)

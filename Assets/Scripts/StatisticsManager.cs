@@ -6,7 +6,6 @@ public class StatisticsManager : MonoBehaviour
 {
     public static StatisticsManager Instance { get; private set; }
     
-    // NEW: событие для уведомления об изменении статистики
     public event Action OnStatisticsChanged;
     
     private const string STATS_KEY = "GameStatistics";
@@ -18,7 +17,6 @@ public class StatisticsManager : MonoBehaviour
     private float sessionStartTime;
     
     [Header("UI References (опционально)")]
-    [SerializeField] private bool updateUIInRealTime = false;
     [SerializeField] private string mainMenuScene = "MainMenu";
     
     void Awake()
@@ -60,7 +58,6 @@ public class StatisticsManager : MonoBehaviour
         string json = JsonUtility.ToJson(stats);
         PlayerPrefs.SetString(STATS_KEY, json);
         PlayerPrefs.Save();
-        // NEW: уведомить о любом изменении статистики (например, после сохранения)
         OnStatisticsChanged?.Invoke();
     }
     
@@ -77,7 +74,6 @@ public class StatisticsManager : MonoBehaviour
         stats.totalGamesPlayed++;
         ResetSessionStats();
         sessionStartTime = Time.time;
-        // NEW: уведомить об изменении
         OnStatisticsChanged?.Invoke();
     }
     
@@ -93,32 +89,24 @@ public class StatisticsManager : MonoBehaviour
             stats.bestDistance = finalScore;
         }
         
-        SaveStatistics(); // здесь уже вызовется событие
+        SaveStatistics(); 
     }
     
     public void AddCoin()
     {
         sessionCoins++;
-        if (updateUIInRealTime)
-        {
-            // Можно обновлять UI в реальном времени
-        }
-        // NEW: уведомить об изменении (чтобы проверить достижения)
         OnStatisticsChanged?.Invoke();
     }
     
     public void AddBattery()
     {
         sessionBatteries++;
-        // NEW: уведомить об изменении
         OnStatisticsChanged?.Invoke();
     }
     
     public void UpdateDistance(float distance)
     {
         sessionDistance = distance;
-        // NEW: уведомить об изменении (опционально, если нужно часто)
-        // Можно вызывать реже, но для достижения "пробежать N метров" нужно.
         OnStatisticsChanged?.Invoke();
     }
 
@@ -127,7 +115,6 @@ public class StatisticsManager : MonoBehaviour
         SceneManager.LoadScene(mainMenuScene);
     }
     
-    // Геттеры
     public int GetTotalGames() => stats.totalGamesPlayed;
     public int GetTotalCoins() => stats.totalCoinsCollected;
     public int GetTotalBatteries() => stats.totalBatteriesCollected;

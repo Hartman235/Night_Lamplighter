@@ -54,7 +54,7 @@ public class SkinChanger : MonoBehaviour
 
     public void ScrollRight()
     {
-        if (index < player.childCount - 1) // -1 потому что индексы с 0
+        if (index < player.childCount - 1) 
         {
             index++;
 
@@ -120,29 +120,23 @@ public class SkinChanger : MonoBehaviour
                 coinsText.text = coins.ToString();
                 PlayerPrefs.SetInt("coins", coins);
                 
-                // Обновляем массивы
                 StockCheck[index] = true;
                 info[index].inStock = true;
                 
-                // Снимаем isChosen со всех скинов
                 for (int i = 0; i < info.Length; i++)
                 {
                     info[i].isChosen = false;
                 }
                 
-                // Устанавливаем isChosen на текущий
                 info[index].isChosen = true;
                 
-                // Сохраняем выбранный скин
                 PlayerPrefs.SetInt("chosenSkin", index);
                 
-                // Отключаем все скины и включаем текущий
                 for (int i = 0; i < player.childCount; i++)
                 {
                     player.GetChild(i).gameObject.SetActive(i == index);
                 }
                 
-                // Меняем текст на CHOSEN и блокируем кнопку
                 priceText.text = "Выбрано";
                 buyBttn.interactable = false;
                 
@@ -152,19 +146,15 @@ public class SkinChanger : MonoBehaviour
 
         if (buyBttn.interactable && !info[index].isChosen && info[index].inStock) 
         {
-            // Снимаем isChosen со всех скинов
             for (int i = 0; i < info.Length; i++)
             {
                 info[i].isChosen = false;
             }
             
-            // Устанавливаем isChosen на текущий
             info[index].isChosen = true;
             
-            // Сохраняем выбор
             PlayerPrefs.SetInt("chosenSkin", index);
             
-            // Отключаем все скины и включаем текущий
             for (int i = 0; i < player.childCount; i++)
             {
                 player.GetChild(i).gameObject.SetActive(i == index);
