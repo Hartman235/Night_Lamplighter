@@ -34,11 +34,15 @@ public class GameOverManager : MonoBehaviour
     private void Vibrate()
     {
         bool vibrationEnabled = PlayerPrefs.GetInt("VibrationEnabled", 1) == 1;
+
         if (vibrationEnabled)
         {
-            #if UNITY_ANDROID || UNITY_IOS
+            Debug.Log("Vibration triggered!"); 
             Handheld.Vibrate();
-            #endif
+        }
+        else
+        {
+            Debug.Log("Vibration is disabled in settings.");
         }
     }
 }
