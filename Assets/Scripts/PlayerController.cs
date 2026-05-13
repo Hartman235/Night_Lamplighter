@@ -100,10 +100,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnDestroy()
-    {
-        SkinLoader.OnSkinChanged -= UpdateAnimatorReference;
-    }
+
 
     void Update()
     {
