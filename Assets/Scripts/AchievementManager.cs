@@ -94,18 +94,18 @@ public class AchievementManager : MonoBehaviour
 
     public bool ClaimReward(string achievementId)
     {
-        if (!achievementUnlocked.ContainsKey(achievementId) || !achievementUnlocked[achievementId])
-            return false;
-        if (achievementClaimed.ContainsKey(achievementId) && achievementClaimed[achievementId])
-            return false;
-
-        AchievementData ach = achievements.Find(a => a.achievementId == achievementId);
+        var ach = achievements.Find(a => a.achievementId == achievementId);
         if (ach == null) return false;
 
         int currentCoins = PlayerPrefs.GetInt("coins", 0);
         currentCoins += ach.rewardCoins;
         PlayerPrefs.SetInt("coins", currentCoins);
         PlayerPrefs.Save();
+
+        if (StatisticsManager.Instance != null)
+        {
+            StatisticsManager.Instance.AddTotalCoins(ach.rewardCoins);
+        }
 
         achievementClaimed[achievementId] = true;
         SaveClaimed(achievementId, true);

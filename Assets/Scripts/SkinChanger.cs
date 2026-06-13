@@ -19,6 +19,24 @@ public class SkinChanger : MonoBehaviour
 
     public int coins;
 
+    private void OnEnable()
+    {
+        if (UpgradesManager.Instance != null)
+            UpgradesManager.Instance.OnCoinsChanged += RefreshCoinsDisplay;
+    }
+
+    private void OnDisable()
+    {
+        if (UpgradesManager.Instance != null)
+            UpgradesManager.Instance.OnCoinsChanged -= RefreshCoinsDisplay;
+    }
+
+    private void RefreshCoinsDisplay()
+    {
+        coins = PlayerPrefs.GetInt("coins");
+        coinsText.text = coins.ToString();
+    }
+
     private void Awake()
     {
         coins = PlayerPrefs.GetInt("coins");
@@ -114,7 +132,7 @@ public class SkinChanger : MonoBehaviour
     {
         if (buyBttn.interactable && !info[index].inStock)
         {
-            if (coins > int.Parse(priceText.text))
+            if (coins >= int.Parse(priceText.text))
             {
                 coins -= int.Parse(priceText.text);
                 coinsText.text = coins.ToString();

@@ -6,7 +6,7 @@ public class Score : MonoBehaviour
 {
     [SerializeField] private Transform player;
     [SerializeField] public Text scoreText;
-    private int totalScore;
+    public int totalScore;
     public int scoreMultiplier;
 
     [Header("Speed Settings")]

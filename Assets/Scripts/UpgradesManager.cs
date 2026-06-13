@@ -13,6 +13,7 @@ public class UpgradesManager : MonoBehaviour
 
     public event Action<string, int> OnUpgradePurchased;
     public event Action OnPerRunUpgradesChanged;
+    public event Action OnCoinsChanged;
 
     private void Awake()
     {
@@ -87,6 +88,7 @@ public class UpgradesManager : MonoBehaviour
         int price = GetCurrentPrice(upgrade);
         int coins = PlayerPrefs.GetInt("coins", 0);
         PlayerPrefs.SetInt("coins", coins - price);
+        OnCoinsChanged?.Invoke();
         PlayerPrefs.Save();
 
         if (upgrade.isPerRun)

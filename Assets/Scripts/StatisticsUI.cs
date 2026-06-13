@@ -39,7 +39,7 @@ public class StatisticsUI : MonoBehaviour
             totalBatteriesText.text = $"Батареек собрано: {StatisticsManager.Instance.GetTotalBatteries()}";
             
         if (totalDistanceText != null)
-            totalDistanceText.text = $"Дистанция: {StatisticsManager.Instance.GetTotalDistance():F1} м";
+            totalDistanceText.text = $"Дистанция: {StatisticsManager.Instance.GetTotalDistance():F0}";
             
         if (totalPlayTimeText != null)
         {

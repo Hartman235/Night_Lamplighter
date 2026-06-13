@@ -16,6 +16,7 @@ public class UpgradesUI : MonoBehaviour
         {
             UpgradesManager.Instance.OnUpgradePurchased += OnUpgradePurchasedHandler;
             UpgradesManager.Instance.OnPerRunUpgradesChanged += OnPerRunUpgradesChangedHandler;
+            UpgradesManager.Instance.OnCoinsChanged += UpdateCoins;
         }
         UpdateCoins();
         RefreshUI();
@@ -27,6 +28,7 @@ public class UpgradesUI : MonoBehaviour
         {
             UpgradesManager.Instance.OnUpgradePurchased -= OnUpgradePurchasedHandler;
             UpgradesManager.Instance.OnPerRunUpgradesChanged -= OnPerRunUpgradesChangedHandler;
+            UpgradesManager.Instance.OnCoinsChanged -= UpdateCoins;
         }
     }
 

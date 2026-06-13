@@ -1,5 +1,6 @@
 using UnityEngine;
-using UnityEngine.EventSystems; 
+using UnityEngine.EventSystems;
+using System.Collections.Generic; 
 
 public class SwipeController : MonoBehaviour
 {
@@ -7,7 +8,8 @@ public class SwipeController : MonoBehaviour
     public static bool wasSwipe = false;
     
     private bool isDraging = false;
-    private Vector2 startTouch, swipeDelta, endTouch;
+    private bool isIgnoringTouch = false; 
+    private Vector2 startTouch, swipeDelta;
     private float touchStartTime;
     
     [Header("Swipe Settings")]
@@ -29,32 +31,47 @@ public class SwipeController : MonoBehaviour
         
         if (Input.GetMouseButtonDown(0))
         {
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-                return;
-            StartTouch(Input.mousePosition);
+            if (IsPointerOverUI(Input.mousePosition))
+                isIgnoringTouch = true;
+            else
+            {
+                isIgnoringTouch = false;
+                StartTouch(Input.mousePosition);
+            }
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            EndTouch(Input.mousePosition);
+            if (!isIgnoringTouch) EndTouch(Input.mousePosition);
+            isIgnoringTouch = false; 
         }
         
-        if (Input.touches.Length > 0)
+        if (Input.touchCount > 0)
         {
-            Touch touch = Input.touches[0];
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
-                return;
+            Touch touch = Input.GetTouch(0);
             
             if (touch.phase == TouchPhase.Began)
             {
-                StartTouch(touch.position);
+                if (IsPointerOverUI(touch.position))
+                {
+                    isIgnoringTouch = true;
+                }
+                else
+                {
+                    isIgnoringTouch = false;
+                    StartTouch(touch.position);
+                }
             }
-            else if (touch.phase == TouchPhase.Ended)
+            else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
             {
-                EndTouch(touch.position);
+                if (!isIgnoringTouch)
+                {
+                    EndTouch(touch.position);
+                }
+                isIgnoringTouch = false; 
             }
         }
         
-        if (isDraging)
+        if (isDraging && !isIgnoringTouch)
         {
             Vector2 currentPos = GetCurrentPosition();
             swipeDelta = currentPos - startTouch;
@@ -69,11 +86,21 @@ public class SwipeController : MonoBehaviour
         }
     }
     
+    private bool IsPointerOverUI(Vector2 screenPosition)
+    {
+        if (EventSystem.current == null) return false;
+        
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = screenPosition;
+        
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+        
+        return results.Count > 0;
+    }
+    
     void StartTouch(Vector2 position)
     {
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-            return;
-        
         isDraging = true;
         startTouch = position;
         touchStartTime = Time.time;
@@ -110,8 +137,8 @@ public class SwipeController : MonoBehaviour
     
     Vector2 GetCurrentPosition()
     {
-        if (Input.touches.Length > 0)
-            return Input.touches[0].position;
+        if (Input.touchCount > 0)
+            return Input.GetTouch(0).position;
         return Input.mousePosition;
     }
     

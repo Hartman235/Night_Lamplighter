@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
     public float lineDistance = 4;
     private Animator anim;
     private Score score;
+    private Coroutine shieldCoroutine;
+    private Coroutine starCoroutine;
     [SerializeField] private float speed;
     private float permanentSpeedMultiplier = 1f;
     private float temporarySpeedMultiplier = 1f;
@@ -107,10 +109,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (statsManager != null)
-        {
-            statsManager.UpdateDistance(transform.position.z);
-        }
         if (SwipeController.doubleTap)
         {
             TryActivateBattery();
@@ -165,11 +163,6 @@ public class PlayerController : MonoBehaviour
                 Vector3 moveDir = diff.normalized * 30 * Time.deltaTime;
                 controller.Move(moveDir.sqrMagnitude < diff.sqrMagnitude ? moveDir : diff);
             }
-        }
-
-        if (statsManager != null)
-        {
-            statsManager.UpdateDistance(transform.position.z);
         }
     }
 
@@ -321,7 +314,7 @@ public class PlayerController : MonoBehaviour
         yield return null;
     }
 
-    void OnControllerColliderHit(ControllerColliderHit hit) 
+    void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.gameObject.tag == "obstacle")
         {
@@ -331,32 +324,44 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                int currentScore = 0;
-                if (scoreScript != null && scoreScript.scoreText != null)
-                {
-                    int.TryParse(scoreScript.scoreText.text, out currentScore);
-                }
-                
-                currentScore++; 
-                PlayerPrefs.SetInt("lastRunScore", currentScore);
-                
-                statsManager?.EndGame(currentScore, transform.position.z);
-                
-                GameOverManager gameOverManager = FindAnyObjectByType<GameOverManager>();
-                if (gameOverManager != null)
-                {
-                    gameOverManager.ProcessGameOver();
-                }
-                else
-                {
-                    Debug.LogWarning("GameOverManager not found! Showing lose panel directly.");
-                    if (losePanel != null)
-                        losePanel.SetActive(true);
-                }
-                
-                Time.timeScale = 0;
-            }    
+                ForceGameOver(true); 
+                Time.timeScale = 0;  
+            }
         }
+    }
+
+    public void ForceGameOver(bool showLosePanel)
+    {
+        int currentScore = 0;
+        if (scoreScript != null && scoreScript.scoreText != null)
+        {
+            int.TryParse(scoreScript.scoreText.text, out currentScore);
+        }
+        
+        PlayerPrefs.SetInt("lastRunScore", currentScore);
+        
+        if (statsManager != null)
+        {
+            statsManager.EndGame(currentScore, transform.position.z);
+        }
+        
+        GameOverManager gameOverManager = FindAnyObjectByType<GameOverManager>();
+        if (gameOverManager != null)
+        {
+            
+            if (showLosePanel)
+            {
+                gameOverManager.ProcessGameOver();
+            }
+            else
+            {
+                RecordsManager.AddNewScore(currentScore);
+                if (UpgradesManager.Instance != null)
+                    UpgradesManager.Instance.ClearPerRunUpgrades();
+            }
+        }
+        
+        Time.timeScale = 1; 
     }
 
     private void OnTriggerEnter(Collider other)
@@ -365,17 +370,13 @@ public class PlayerController : MonoBehaviour
 
         if (other.gameObject.tag == "BonusStar")
         {
-            StartCoroutine(StarBonus());
+            StartCoroutine(StarBonus()); 
             Destroy(other.gameObject);
         }
         if (other.gameObject.tag == "BonusShield")
         {
-            StartCoroutine(ShieldBonus());
+            StartCoroutine(ShieldBonus()); 
             Destroy(other.gameObject);
-        }
-        if (other.gameObject.tag == "Battery")
-        {
-            CollectBattery(other.gameObject);
         }
     }
 
@@ -393,23 +394,38 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator StarBonus()
     {
+        if (starCoroutine != null)
+            StopCoroutine(starCoroutine);
+
+        starCoroutine = StartCoroutine(StarBonusRoutine());
+        yield return null;
+    }
+
+    private IEnumerator StarBonusRoutine()
+    {
         if (score != null)
         {
             score.scoreMultiplier = 2;
             yield return new WaitForSeconds(20);
             score.scoreMultiplier = 1;
         }
-        else
-        {
-            yield break;
-        }
+        starCoroutine = null;
     }
 
     private IEnumerator ShieldBonus()
     {
+        if (shieldCoroutine != null)
+            StopCoroutine(shieldCoroutine);
+        shieldCoroutine = StartCoroutine(ShieldBonusRoutine());
+        yield return null;
+    }
+
+    private IEnumerator ShieldBonusRoutine()
+    {
         isImmortal = true;
         yield return new WaitForSeconds(10);
         isImmortal = false;
+        shieldCoroutine = null; 
     }
     
     public int GetBatteriesCollected() => batteriesCollected;

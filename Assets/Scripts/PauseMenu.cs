@@ -36,24 +36,31 @@ public class PauseMenu : MonoBehaviour
             ResumeGame();
     }
 
-    void PauseGame()
+    public void PauseGame()
     {
         Time.timeScale = 0f;
-        if (pausePanel != null)
-            pausePanel.SetActive(true);
+        if (pausePanel != null) pausePanel.SetActive(true);
+        
+        if (pauseButton != null) pauseButton.gameObject.SetActive(false); 
     }
 
     public void ResumeGame()
     {
         Time.timeScale = 1f;
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(false);
+        if (pauseButton != null) pauseButton.gameObject.SetActive(true);
         isPaused = false;
     }
 
     public void ToMenu()
     {
-        Time.timeScale = 1f;
+        PlayerController player = FindFirstObjectByType<PlayerController>();
+        if (player != null)
+        {
+            player.ForceGameOver(false); 
+        }
+        
+        Time.timeScale = 1; 
         SceneManager.LoadScene(mainMenuScene);
     }
 

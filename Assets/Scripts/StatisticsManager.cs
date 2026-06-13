@@ -13,7 +13,6 @@ public class StatisticsManager : MonoBehaviour
     
     private int sessionCoins;
     private int sessionBatteries;
-    private float sessionDistance;
     private float sessionStartTime;
     
     [Header("UI References (опционально)")]
@@ -51,6 +50,16 @@ public class StatisticsManager : MonoBehaviour
             stats = new GameStatistics();
         }
     }
+
+    public void AddTotalCoins(int amount)
+    {
+        if (stats != null)
+        {
+            stats.totalCoinsCollected += amount;
+            SaveStatistics(); 
+            OnStatisticsChanged?.Invoke(); 
+        }
+    }
     
     void SaveStatistics()
     {
@@ -65,7 +74,6 @@ public class StatisticsManager : MonoBehaviour
     {
         sessionCoins = 0;
         sessionBatteries = 0;
-        sessionDistance = 0;
         sessionStartTime = Time.time;
     }
     
@@ -81,7 +89,7 @@ public class StatisticsManager : MonoBehaviour
     {
         stats.totalCoinsCollected += sessionCoins;
         stats.totalBatteriesCollected += sessionBatteries;
-        stats.totalDistanceRun += sessionDistance;
+        stats.totalDistanceRun += finalScore;
         stats.totalPlayTime += Time.time - sessionStartTime;
         
         if (finalScore > stats.bestDistance)
@@ -104,12 +112,6 @@ public class StatisticsManager : MonoBehaviour
         OnStatisticsChanged?.Invoke();
     }
     
-    public void UpdateDistance(float distance)
-    {
-        sessionDistance = distance;
-        OnStatisticsChanged?.Invoke();
-    }
-
     public void BackToMainMenu()
     {
         SceneManager.LoadScene(mainMenuScene);
@@ -118,7 +120,7 @@ public class StatisticsManager : MonoBehaviour
     public int GetTotalGames() => stats.totalGamesPlayed;
     public int GetTotalCoins() => stats.totalCoinsCollected;
     public int GetTotalBatteries() => stats.totalBatteriesCollected;
-    public float GetTotalDistance() => Mathf.Round(stats.totalDistanceRun * 100f) / 100f;
+    public float GetTotalDistance() => stats.totalDistanceRun;
     public float GetTotalPlayTime() => Mathf.Round(stats.totalPlayTime * 100f) / 100f;
     public int GetBestDistance() => stats.bestDistance;
     public string GetLastUpdated() => stats.lastUpdated;
