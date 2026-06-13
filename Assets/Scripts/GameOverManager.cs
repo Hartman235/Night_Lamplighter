@@ -39,6 +39,7 @@ public class GameOverManager : MonoBehaviour
     private void Vibrate()
     {
         bool vibrationEnabled = PlayerPrefs.GetInt("VibrationEnabled", 1) == 1;
+<<<<<<< HEAD
         if (!vibrationEnabled) return;
 
         Debug.Log("Vibration triggered! Native check started.");
@@ -81,6 +82,8 @@ public class GameOverManager : MonoBehaviour
                     }
                 }
             }
+=======
+
         if (vibrationEnabled)
         {
             Debug.Log("Vibration triggered!"); 
@@ -89,6 +92,7 @@ public class GameOverManager : MonoBehaviour
         else
         {
             Debug.Log("Vibration is disabled in settings.");
+>>>>>>> b2122dfef2e29ef77019e6ed4697489353bcc865
         }
         catch (System.Exception e)
         {
