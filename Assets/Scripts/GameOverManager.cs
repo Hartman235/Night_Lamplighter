@@ -81,6 +81,14 @@ public class GameOverManager : MonoBehaviour
                     }
                 }
             }
+        if (vibrationEnabled)
+        {
+            Debug.Log("Vibration triggered!"); 
+            Handheld.Vibrate();
+        }
+        else
+        {
+            Debug.Log("Vibration is disabled in settings.");
         }
         catch (System.Exception e)
         {
